@@ -1,6 +1,6 @@
 # IPTSNet: End-to-End Driving with Integrated Perception-Temporal-Spatial Network
 <img src="static/images/test1.gif">
-Modern autonomous driving systems require robust and adaptive frameworks to process complex perception data from various sensors, such as LiDAR, cameras, and IMUs, while ensuring efficient decision-making in dynamic environments. Existing models often struggle to integrate perception, temporal reasoning, and spatial reasoning in a unified manner, leading to suboptimal performance in real-world scenarios. To address these challenges, we propose the Integrated Perception-Temporal-Spatial Network (IPTSN), a novel end-to-end framework that seamlessly integrates multi-modal sensor data with advanced temporal and spatial reasoning capabilities.
+Modern autonomous driving systems require robust and adaptive frameworks to process complex perception data from various sensors, such as LiDAR, cameras, and IMUs, while ensuring efficient decision-making in dynamic environments. Existing models often struggle to integrate perception, temporal reasoning, and spatial reasoning in a unified manner, leading to suboptimal performance in real-world scenarios. To address these challenges, we propose the Integrated Perception-Temporal-Spatial Network (IPTSNet), a novel end-to-end framework that seamlessly integrates multi-modal sensor data with advanced temporal and spatial reasoning capabilities.
 
 ## Setup
 Clone the repo, setup CARLA 0.9.10.1, and build the conda environment:
