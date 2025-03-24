@@ -1,1 +1,119 @@
+import torch 
+import torch.nn as nn
+import torch.nn.functional as F
+import math
 
+def apply_rotary_embeddings(query, key, rotary_emb):
+    def reshape_embeddings(rotary_emb, x):
+        ndim = x.ndim
+        assert 0 <= 1 < ndim
+        assert rotary_emb.shape == (x.shape[1], x.shape[-1])
+        shape = [d if i == 1 or i == ndim - 1 else 1 for i, d in enumerate(x.shape)]
+        return rotary_emb.view(*shape)
+
+    query_complex = torch.view_as_complex(query.float().reshape(*query.shape[:-1], -1, 2))
+    key_complex = torch.view_as_complex(key.float().reshape(*key.shape[:-1], -1, 2))
+    
+    rotary_emb = reshape_embeddings(rotary_emb, query_complex)
+    query_out = torch.view_as_real(query_complex * rotary_emb).flatten(3)
+    key_out = torch.view_as_real(key_complex * rotary_emb).flatten(3)
+    
+    return query_out.type_as(query), key_out.type_as(key)
+
+class MultiheadLatentAttention(nn.Module):
+    def __init__(self, n_heads, d_k, d_r, d_c, d_c_prime, d_v, dim, dropout, max_seq_len):
+        super().__init__()
+
+        self.n_heads = n_heads  
+        self.d_k = d_k 
+        self.d_r = d_r  
+        self.d_c = d_c  
+        self.d_c_prime = d_c_prime 
+        self.d_v = d_v 
+
+        self.W_c = nn.Linear(dim, self.d_c, bias=False)  # W_c
+        self.W_c_prime = nn.Linear(dim, self.d_c_prime, bias=False)  # W_c'
+        
+        self.W_qc = nn.ModuleList([
+            nn.Linear(self.d_c_prime, self.d_k, bias=False) 
+            for _ in range(self.n_heads)
+        ])  # W_qc^(s)
+
+        self.W_qr = nn.ModuleList([
+            nn.Linear(self.d_c_prime, self.d_r, bias=False)
+            for _ in range(self.n_heads)
+        ])  # W_qr^(s)
+        
+        self.W_kc = nn.ModuleList([
+            nn.Linear(self.d_c, self.d_k, bias=False)
+            for _ in range(self.n_heads)
+        ])  # W_kc^(s)
+        self.W_kr = nn.Linear(dim, self.d_r, bias=False)  # W_kr
+        
+        self.W_v = nn.ModuleList([
+            nn.Linear(self.d_c, self.d_v, bias=False)
+            for _ in range(self.n_heads)
+        ])  # W_v^(s)
+        
+        self.attn_dropout = nn.Dropout(dropout)
+        self.resid_dropout = nn.Dropout(dropout)
+        
+        self.c_cache = None 
+        self.x_cache = None 
+        
+        attn_mask = torch.full((1, 1, max_seq_len, max_seq_len), float("-inf"))
+        self.register_buffer("attn_mask", torch.triu(attn_mask, diagonal=1), persistent=False)
+
+    def precompute_matrices(self):
+        self.merged_W_qc_kc = [
+            torch.matmul(self.W_qc[i].weight, self.W_kc[i].weight.t())
+            for i in range(self.n_heads)
+        ]
+
+    def forward(self, x, rotary_emb=None, kv_cache=False):
+        batch_size, seq_len, _ = x.shape
+        
+        c = self.W_c(x)  # [batch_size, seq_len, d_c]
+        c_prime = self.W_c_prime(x)  # [batch_size, seq_len, d_c_prime]
+        
+        if kv_cache and not self.training:
+            has_cache = self.c_cache is not None and self.x_cache is not None
+            if seq_len == 1 and has_cache:
+                c = torch.cat((self.c_cache, c), dim=1)
+                x = torch.cat((self.x_cache, x), dim=1)
+            self.c_cache = c
+            self.x_cache = x
+            
+        outputs = []
+        for head in range(self.n_heads):
+            if not self.training:  
+                q_c = torch.matmul(c_prime, self.merged_W_qc_kc[head])  # [batch_size, seq_len, d_c]
+                k_c = c
+            else: 
+                q_c = self.W_qc[head](c_prime)  # c'W_qc^(s)
+                k_c = self.W_kc[head](c)  # cW_kc^(s)
+            
+            q_r = self.W_qr[head](c_prime)  # c'W_qr^(s)
+            k_r = self.W_kr(x)  # xW_kr
+            
+            if rotary_emb is not None:
+                q_r, k_r = apply_rotary_embeddings(q_r, k_r, rotary_emb)
+
+            q = torch.cat([q_c, q_r], dim=-1)  # [batch_size, seq_len, d_k + d_r]
+            k = torch.cat([k_c, k_r], dim=-1)  # [batch_size, seq_len, d_k + d_r]
+            
+            scale = 1.0 / math.sqrt(self.d_k + self.d_r)
+            attn_scores = torch.matmul(q, k.transpose(-2, -1)) * scale
+            
+            attn_scores = attn_scores + self.attn_mask[:, :, :seq_len, :seq_len]
+            
+            attn_probs = F.softmax(attn_scores.float(), dim=-1).type_as(q_c)
+            attn_probs = self.attn_dropout(attn_probs)
+
+            v = self.W_v[head](c)  # cW_v^(s)
+            head_output = torch.matmul(attn_probs, v)
+            
+            outputs.append(head_output)
+        
+        output = torch.cat(outputs, dim=-1)
+        return self.resid_dropout(output)
