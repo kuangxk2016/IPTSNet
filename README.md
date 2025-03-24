@@ -1,50 +1,62 @@
-# Academic Project Page Template
-This is an academic paper project page template.
+# IPTSNet: End-to-End Driving with Integrated Perception-Temporal-Spatial Network
+Modern autonomous driving systems require robust and adaptive frameworks to process complex perception data from various sensors, such as LiDAR, cameras, and IMUs, while ensuring efficient decision-making in dynamic environments. Existing models often struggle to integrate perception, temporal reasoning, and spatial reasoning in a unified manner, leading to suboptimal performance in real-world scenarios. To address these challenges, we propose the Integrated Perception-Temporal-Spatial Network (IPTSN), a novel end-to-end framework that seamlessly integrates multi-modal sensor data with advanced temporal and spatial reasoning capabilities.
 
+## Setup
+Clone the repo, setup CARLA 0.9.10.1, and build the conda environment:
+```Shell
+git clone https://github.com/kuangxk2016/IPTSNet.git
+cd IPTSNet
+chmod +x setup_carla.sh
+./setup_carla.sh
+conda env create -f environment.yml
+conda activate iptsn
+easy_install carla/PythonAPI/carla/dist/carla-0.9.10-py3.7-linux-x86_64.egg
+pip install torch-scatter -f https://data.pyg.org/whl/torch-1.11.0+cu113.html
+pip install mmcv-full==1.5.3 -f https://download.openmmlab.com/mmcv/dist/cu113/torch1.11.0/index.html
+```
 
-Example project pages built using this template are:
-- https://horwitz.ai/probex
-- https://vision.huji.ac.il/probegen
-- https://horwitz.ai/mother
-- https://horwitz.ai/spectral_detuning
-- https://vision.huji.ac.il/ladeda
-- https://vision.huji.ac.il/dsire
-- https://horwitz.ai/podd
-- https://dreamix-video-editing.github.io
-- https://horwitz.ai/conffusion
-- https://horwitz.ai/3d_ads/
-- https://vision.huji.ac.il/ssrl_ad
-- https://vision.huji.ac.il/deepsim
+## Dataset
+Dataset Link:  Coming Soon
 
+The dataset is structured as follows:
+```
+- Scenario
+    - Town
+        - Route
+            - rgb: camera images
+            - lidar: 3d point cloud in .npy format
+            - semantics: corresponding segmentation images
+            - topdown: topdown segmentation maps
+            - label_raw: 3d bounding boxes for vehicles
+            - measurements: contains ego-agent's position, velocity and other metadata
+```
 
+### Data genetation
+To generate data, the first step is to launch a CARLA server:
+```Shell
+./CarlaUE4.sh --world-port=2000 -opengl
+```
+Once the server is running, use the script below for generating training data:
+```Shell
+./leaderboard/scripts/datagen.sh <carla root> <working directory>
+```
 
-## Start using the template
-To start using the template click on `Use this Template`.
+## Training
+```Shell
+cd IPTSNet
+CUDA_VISIBLE_DEVICES=0,1,2,3 torchrun train.py --root_dir /path/to/dataset_root/ --parallel_training 1
+```
 
-The template uses html for controlling the content and css for controlling the style. 
-To edit the websites contents edit the `index.html` file. It contains different HTML "building blocks", use whichever ones you need and comment out the rest.  
-
-**IMPORTANT!** Make sure to replace the `favicon.ico` under `static/images/` with one of your own, otherwise your favicon is going to be a dreambooth image of me.
-
-## Components
-- Teaser video
-- Images Carousel
-- Youtube embedding
-- Video Carousel
-- PDF Poster
-- Bibtex citation
-
-## Tips:
-- The `index.html` file contains comments instructing you what to replace, you should follow these comments.
-- The `meta` tags in the `index.html` file are used to provide metadata about your paper 
-(e.g. helping search engine index the website, showing a preview image when sharing the website, etc.)
-- The resolution of images and videos can usually be around 1920-2048, there rarely a need for better resolution that take longer to load. 
-- All the images and videos you use should be compressed to allow for fast loading of the website (and thus better indexing by search engines). For images, you can use [TinyPNG](https://tinypng.com), for videos you can need to find the tradeoff between size and quality.
-- When using large video files (larger than 10MB), it's better to use youtube for hosting the video as serving the video from the website can take time.
-- Using a tracker can help you analyze the traffic and see where users came from. [statcounter](https://statcounter.com) is a free, easy to use tracker that takes under 5 minutes to set up. 
-- This project page can also be made into a github pages website.
-- Replace the favicon to one of your choosing (the default one is of the Hebrew University). 
-- Suggestions, improvements and comments are welcome, simply open an issue or contact me. You can find my contact information at [https://horwitz.ai](https://horwitz.ai)
+## Evaluation
+Pre-trained weight files should be saved in ./model_ckpt/.
+Firstly, launching a CARLA server:
+```Shell
+./CarlaUE4.sh --world-port=2000 -opengl
+```
+When the CARLA server is running, evaluate with the script:
+```Shell
+./leaderboard/scripts/local_evaluation.sh <carla root> <working directory>
+```
 
 ## Acknowledgments
 Parts of this project page were adopted from the [Nerfies](https://nerfies.github.io/) page.
