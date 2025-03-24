@@ -118,7 +118,8 @@
         <!-- Your video here -->
         <img src="static/images/test1.gif" alt="Teaser GIF" height="100%">
       <h2 class="subtitle has-text-centered">
-        End-to-End Driving Evaluation with CARLA Leaderboard 
+        we propose the Integrated Perception-Temporal-Spatial Network (IPTSNet), an innovative end-to-end framework that seamlessly integrates perception, temporal reasoning, and spatial reasoning into a unified architecture. The IPTSNet framework is designed with three core modules: perception, temporal reasoning, and spatial reasoning. 
+The perception module takes raw sensor data and the ego-vehicle motion information as inputs, employing static encoding, dynamic encoding to extract multi-perspective features, which enhances the representation of the occupancy map. Specifically, the dynamic encoding embeds motion state information, thereby improving prediction accuracy.
       </h2>
     </div>
   </div>
@@ -130,16 +131,16 @@
   <div class="container is-max-desktop">
     <div class="columns is-centered has-text-centered">
       <div class="column is-four-fifths">
-        <h2 class="title is-3">Abstract</h2>
-        <div class="content has-text-justified">
-          <p>
-            Modern autonomous driving systems require robust and adaptive frameworks to process complex perception data from various sensors, such as LiDAR, cameras, and IMUs, while ensuring efficient decision-making in dynamic environments. Existing models often struggle to integrate perception, temporal reasoning, and spatial reasoning in a unified manner, leading to suboptimal performance in real-world scenarios. To address these challenges, we propose the Integrated Perception-Temporal-Spatial Network (IPTSN), a novel end-to-end framework that seamlessly integrates multi-modal sensor data with advanced temporal and spatial reasoning capabilities.
-          </p>
-        </div>
+        <h2 class="title is-3">How it works</h2>
         <!-- insert fig -->
           <div class="item">
           <!-- Your image here -->
           <img src="static/images/Algorithm_fig.png" alt="MY ALT TEXT"/>
+          </div>
+          <div class="content has-text-justified">
+            <p>
+              In the perception module, multimodal information undergoes dynamic and static encoding to generate implicit perceptual features. Subsequently, a multi-head cross latent attention mechanism is employed to update and fuse historical information with perceptual data. The spatial reasoning module primarily constrains the predicted waypoints through loss functions and occupancy maps. The Memory Buffer ensures the closure of the loop across all modules, enhancing the overall coherence and functionality of the system.
+            </p>
           </div>
           <div class="item">
             <!-- Your image here -->
