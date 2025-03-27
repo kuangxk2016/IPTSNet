@@ -52,7 +52,7 @@
       <div class="container is-max-desktop">
         <div class="columns is-centered">
           <div class="column has-text-centered">
-            <h1 class="title is-1 publication-title">IPTSNet: End-to-End Driving with Integrated Perception-Temporal-Spatial Network</h1>
+            <h1 class="title is-1 publication-title">ISTSNet: End-to-End Driving with Integrated Scene Cognition TempoFlow and Spatial Network</h1>
             <div class="is-size-5 publication-authors">
               <!-- Paper authors -->
               <span class="author-block">
@@ -121,8 +121,7 @@
       </div>
       <div class="content has-text-justified">
             <p>
-              we propose the Integrated Perception-Temporal-Spatial Network (IPTSNet), an innovative end-to-end framework that seamlessly integrates perception, temporal reasoning, and spatial reasoning into a unified architecture. The IPTSNet framework is designed with three core modules: perception, temporal reasoning, and spatial reasoning. 
-The perception module takes raw sensor data and the ego-vehicle motion information as inputs, employing static encoding, dynamic encoding to extract multi-perspective features, which enhances the representation of the occupancy map. Specifically, the dynamic encoding embeds motion state information, thereby improving prediction accuracy.
+              we propose the Integrated Scene Cognition TempoFlow and Spatial Network (ISTSNet), an innovative end-to-end framework that seamlessly integrates scene cognition, tempoflow reasoning, and spatial reasoning into a unified architecture. 
             </p>
       </div>
     </div>
@@ -143,7 +142,7 @@ The perception module takes raw sensor data and the ego-vehicle motion informati
           </div>
           <div class="content has-text-justified">
             <p>
-              In the perception module, multimodal information undergoes dynamic and static encoding to generate implicit perceptual features. Subsequently, a multi-head cross latent attention mechanism is employed to update and fuse historical information with perceptual data. The spatial reasoning module primarily constrains the predicted waypoints through loss functions and occupancy maps. The Memory Buffer ensures the closure of the loop across all modules, enhancing the overall coherence and functionality of the system.
+              In the scene cognition module, multimodal information undergoes dynamic and static encoding to generate implicit perceptual features. Subsequently, a multi-head cross latent attention mechanism is employed to update and fuse historical information with perceptual data. The spatial reasoning module primarily constrains the predicted waypoints through loss functions and occupancy maps. The Memory Buffer ensures the closure of the loop across all modules, enhancing the overall coherence and functionality of the system.
             </p>
           </div>
           <div class="item">
@@ -167,7 +166,7 @@ The perception module takes raw sensor data and the ego-vehicle motion informati
         <img src="static/images/visual1.png" alt="Abstract Illustration" class="abstract-image">
         <div class="content has-text-justified">
           <p>
-            (a) The front, left, and right views are stitched together. (b) BEV road segmentation. (c) Point cloud data detection of obstacles and their bounding box results. (d) Top view of the point cloud data. (e) Semantic segmentation features from perception. In (b) and (c), the ego-vehicle's current position, predicted waypoints, and local target waypoint are visualized and represented in blue, white, and red, respectively.
+            (a) The front, left, and right views are stitched together. (b) BEV road segmentation. (c) Point cloud data detection of obstacles and their bounding box results. (d) Top view of the point cloud data. (e) Semantic segmentation features from scene cognition. In (b) and (c), the ego-vehicle's current position, predicted waypoints, and local target waypoint are visualized and represented in blue, white, and red, respectively.
           </p>
         </div>
       </div>
